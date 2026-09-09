@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+## frozen_string_literal: true
 
 # == Schema Information
 #
@@ -32,9 +32,12 @@
 #  index_users_on_uid_and_provider      (uid,provider) UNIQUE
 #
 class User < ApplicationRecord
+  extend Devise::Models # 追加
+
   # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :trackable, :validatable
+
   include DeviseTokenAuth::Concerns::User
 end
