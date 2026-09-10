@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # == Schema Information
 #
 # Table name: articles
@@ -19,6 +17,8 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-class ArticleSerializer < ActiveModel::Serializer
-  attributes :id
+require 'rails_helper'
+
+RSpec.describe Article, type: :model do
+  pending "add some examples to (or delete) #{__FILE__}"
 end
