@@ -1,24 +1,25 @@
-# frozen_string_literal: true
-
 # == Schema Information
 #
-# Table name: articles
+# Table name: comments
 #
 #  id         :bigint           not null, primary key
 #  body       :text
-#  title      :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  article_id :bigint           not null
 #  user_id    :bigint           not null
 #
 # Indexes
 #
-#  index_articles_on_user_id  (user_id)
+#  index_comments_on_article_id  (article_id)
+#  index_comments_on_user_id     (user_id)
 #
 # Foreign Keys
 #
+#  fk_rails_...  (article_id => articles.id)
 #  fk_rails_...  (user_id => users.id)
 #
-class ArticleSerializer < ActiveModel::Serializer
-  attributes :id
+class Comment < ApplicationRecord
+  belongs_to :user
+  belongs_to :article
 end

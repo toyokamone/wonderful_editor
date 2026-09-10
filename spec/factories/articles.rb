@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # == Schema Information
 #
 # Table name: articles
@@ -19,6 +17,10 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-class ArticleSerializer < ActiveModel::Serializer
-  attributes :id
+FactoryBot.define do
+  factory :article do
+    title { "MyString" }
+    body { "MyText" }
+    user { nil }
+  end
 end
