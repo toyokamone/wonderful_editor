@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # == Schema Information
 #
 # Table name: articles
@@ -19,6 +17,9 @@
 #
 #  fk_rails_...  (user_id => users.id)
 #
-class ArticleSerializer < ActiveModel::Serializer
-  attributes :id
+class Article < ApplicationRecord
+  belongs_to :user
+
+  has_many :comments, dependent: :destroy
+  has_many :article_likes, dependent: :destroy
 end
