@@ -19,4 +19,30 @@ RSpec.describe "Api::V1::Articles", type: :request do
       expect(res[0]["user"].keys).to eq ["id", "name", "email"]
     end
   end
+
+  describe "GET /api/v1/articles/:id" do
+    subject { get(api_v1_article_path(article_id)) }
+
+    context "指定した id の記事が存在する場合" do
+      let(:article) { create(:article) }
+      let(:article_id) { article.id }
+
+      it "指定した記事の詳細が取得できる", :aggregate_failures do
+        subject
+        res = JSON.parse(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(res).to include("id" => article.id, "title" => article.title, "body" => article.body)
+        expect(res["user"]["id"]).to eq(article.user.id)
+      end
+    end
+
+    context "指定した id の記事が存在しない場合" do
+      let(:article_id) { 10_000_000 }
+
+      it "記事が見つからない" do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+  end
 end
