@@ -1,13 +1,18 @@
-// This file is automatically compiled by Webpack, along with any other files
-// present in this directory. You're encouraged to place your actual application logic in
-// a relevant structure within app/javascript and only use these pack files to reference
-// that code so it'll be compiled.
+import Vue from 'vue'
+import App from '../app.vue'
+import router from '../router/router.js'
+import store from '../store/store.js'
+import Vuetify from 'vuetify'
+import 'vuetify/dist/vuetify.min.css'
 
-import Rails from "@rails/ujs"
-import Turbolinks from "turbolinks"
-import * as ActiveStorage from "@rails/activestorage"
-import "channels"
+Vue.use(Vuetify)
+const vuetify = new Vuetify()
 
-Rails.start()
-Turbolinks.start()
-ActiveStorage.start()
+document.addEventListener('DOMContentLoaded', () => {
+  new Vue({
+    router,
+    store,
+    vuetify,
+    render: h => h(App)
+  }).$mount('#app')
+})
