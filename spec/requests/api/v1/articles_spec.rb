@@ -4,17 +4,16 @@ RSpec.describe "Api::V1::Articles", type: :request do
   describe "GET /api/v1/articles" do
     subject { get(api_v1_articles_path) }
 
-    let!(:article_yesterday) { create(:article, updated_at: 1.day.ago) }
-    let!(:article_two_days_ago) { create(:article, updated_at: 2.days.ago) }
-    let!(:article_now) { create(:article, updated_at: Time.current) }
+    let!(:old_article) { create(:article, updated_at: 1.day.ago) }
+    let!(:older_article) { create(:article, updated_at: 2.days.ago) }
+    let!(:newest_article) { create(:article) }
 
     it "記事の一覧が取得できる", :aggregate_failures do
       subject
       res = JSON.parse(response.body)
-
       expect(response).to have_http_status(:ok)
       expect(res.length).to eq(3)
-      expect(res.map {|d| d["id"] }).to eq([article_now.id, article_yesterday.id, article_two_days_ago.id])
+      expect(res.map {|d| d["id"] }).to eq [newest_article.id, old_article.id, older_article.id]
       expect(res[0].keys).to eq ["id", "title", "updated_at", "user"]
       expect(res[0]["user"].keys).to eq ["id", "name", "email"]
     end
@@ -30,15 +29,15 @@ RSpec.describe "Api::V1::Articles", type: :request do
       it "指定した記事の詳細が取得できる", :aggregate_failures do
         subject
         res = JSON.parse(response.body)
-
         expect(response).to have_http_status(:ok)
-        expect(res).to include("id" => article.id, "title" => article.title, "body" => article.body)
-        expect(res["user"]["id"]).to eq(article.user.id)
+        expect(res.slice("id", "title", "body")).to eq("id" => article.id, "title" => article.title, "body" => article.body)
+        expect(res["updated_at"]).to be_present
+        expect(res["user"]).to eq("id" => article.user.id, "name" => article.user.name, "email" => article.user.email)
       end
     end
 
     context "指定した id の記事が存在しない場合" do
-      let(:article_id) { 10_000_000 }
+      let(:article_id) { 10000 }
 
       it "記事が見つからない" do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
@@ -47,14 +46,13 @@ RSpec.describe "Api::V1::Articles", type: :request do
   end
 
   describe "POST /api/v1/articles" do
-    subject { post(api_v1_articles_path, params: params) }
+    subject { post(api_v1_articles_path, params: params, headers: headers) }
 
     let(:current_user) { create(:user) }
-
-    before do
-      # rubocop:disable RSpec/AnyInstance
-      allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
-      # rubocop:enable RSpec/AnyInstance
+    let(:headers) do
+      auth_headers = current_user.create_new_auth_token
+      current_user.save!
+      auth_headers
     end
 
     context "適切なパラメータを送信したとき" do
@@ -71,28 +69,22 @@ RSpec.describe "Api::V1::Articles", type: :request do
   end
 
   describe "PATCH /api/v1/articles/:id" do
-    subject { patch(api_v1_article_path(article_id), params: params) }
+    subject { patch(api_v1_article_path(article.id), params: params, headers: headers) }
 
-    let(:params) { { article: { title: Faker::Lorem.sentence, created_at: 1.day.ago } } }
     let(:current_user) { create(:user) }
-
-    before do
-      # rubocop:disable RSpec/AnyInstance
-      allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
-      # rubocop:enable RSpec/AnyInstance
+    let(:headers) do
+      auth_headers = current_user.create_new_auth_token
+      current_user.save!
+      auth_headers
     end
 
     context "自分が所持している記事のレコードを更新しようとするとき" do
       let(:article) { create(:article, user: current_user) }
-      let(:article_id) { article.id }
+      let(:params) { { article: { title: "更新後のタイトル", body: "更新後の本文" } } }
 
       it "記事を更新できる", :aggregate_failures do
-        old_body = article.body
-        old_created_at = article.created_at
-
-        expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title])
-        expect(article.reload.body).to eq(old_body)
-        expect(article.reload.created_at).to be_within(1.second).of(old_created_at)
+        expect { subject }.to change { article.reload.title }.from(article.title).to("更新後のタイトル") &
+                              change { article.reload.body }.from(article.body).to("更新後の本文")
         expect(response).to have_http_status(:ok)
       end
     end
@@ -100,7 +92,7 @@ RSpec.describe "Api::V1::Articles", type: :request do
     context "自分が所持していない記事のレコードを更新しようとするとき" do
       let(:other_user) { create(:user) }
       let(:article) { create(:article, user: other_user) }
-      let(:article_id) { article.id }
+      let(:params) { { article: attributes_for(:article) } }
 
       it "更新できない（RecordNotFound）" do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
@@ -109,29 +101,29 @@ RSpec.describe "Api::V1::Articles", type: :request do
   end
 
   describe "DELETE /api/v1/articles/:id" do
-    subject { delete(api_v1_article_path(article_id)) }
+    subject { delete(api_v1_article_path(article.id), headers: headers) }
 
     let(:current_user) { create(:user) }
-
-    before do
-      # rubocop:disable RSpec/AnyInstance
-      allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
-      # rubocop:enable RSpec/AnyInstance
+    let(:headers) do
+      auth_headers = current_user.create_new_auth_token
+      current_user.save!
+      auth_headers
     end
 
     context "自分が所持している記事のレコードを削除しようとするとき" do
-      let!(:article) { create(:article, user: current_user) }
-      let(:article_id) { article.id }
+      let(:article) { create(:article, user: current_user) }
+      before { article } # テスト開始前に事前作成させておく
 
-      it "記事を削除できる" do
+      it "記事を削除できる", :aggregate_failures do
         expect { subject }.to change { Article.count }.by(-1)
+        expect(response).to have_http_status(:no_content)
       end
     end
 
     context "自分が所持していない記事のレコードを削除しようとするとき" do
       let(:other_user) { create(:user) }
-      let!(:article) { create(:article, user: other_user) }
-      let(:article_id) { article.id }
+      let(:article) { create(:article, user: other_user) }
+      before { article } # テスト開始前に事前作成させておく
 
       it "削除できない（RecordNotFound）" do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
