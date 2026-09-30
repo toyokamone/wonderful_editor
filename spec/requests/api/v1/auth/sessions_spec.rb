@@ -62,6 +62,8 @@ RSpec.describe "Api::V1::Auth::Sessions", type: :request do
         auth_headers
       end
 
+      before { headers } # 事前に headers (および user.save!) を評価しておく
+
       it "ログアウトできる", :aggregate_failures do
         expect { subject }.to change { user.reload.tokens }.from(be_present).to(be_blank)
         expect(response).to have_http_status(:ok)
