@@ -56,7 +56,7 @@ RSpec.describe "Api::V1::Auth::Sessions", type: :request do
 
     context "ログアウトに必要な情報を送信したとき" do
       let(:user) { create(:user) }
-      let!(:headers) do
+      let(:headers) do
         auth_headers = user.create_new_auth_token
         user.save!
         auth_headers
@@ -70,7 +70,7 @@ RSpec.describe "Api::V1::Auth::Sessions", type: :request do
 
     context "誤った情報を送信したとき" do
       let(:user) { create(:user) }
-      let!(:headers) { { "access-token" => "", "token-type" => "", "client" => "", "expiry" => "", "uid" => "" } }
+      let(:headers) { { "access-token" => "", "token-type" => "", "client" => "", "expiry" => "", "uid" => "" } }
 
       it "ログアウトできない", :aggregate_failures do
         subject
