@@ -1,51 +1,68 @@
 <template>
-  <v-container class="py-8">
-    <!-- データがある場合はカード一覧を表示 -->
-    <template v-if="articles && articles.length > 0">
-      <v-card
-        v-for="article in articles"
-        :key="article.id"
-        class="mb-5 mx-auto"
-        max-width="600"
-      >
-        <v-card-title>{{ article.title }}</v-card-title>
-        <v-divider class="mx-4"></v-divider>
-        <v-card-text>{{ article.body }}</v-card-text>
-      </v-card>
-    </template>
-
-    <!-- データ取得中または0件の場合の表示 -->
-    <template v-else>
-      <v-alert type="info" class="mx-auto" max-width="600">
-        記事データが見つかりません（または読み込み中）
-      </v-alert>
-    </template>
+  <v-container class="mt-5">
+    <div>
+      <div v-for="article in articles" v-bind:key="article.id">
+        <v-card flat class="mb-5 pb-7" style="margin: 0 auto;" justify-center max-width="600" >
+          <v-card-title class="article-title">
+            <router-link :to="{ name: 'article', params: { id: article.id }}">{{ article.title }}</router-link>
+          </v-card-title>
+          <time-ago
+            class="ml-5"
+            :refresh="60"
+            :datetime="article.updated_at"
+            locale="en"
+            tooltip="right"
+            long
+          ></time-ago>
+        </v-card>
+      </div>
+    </div>
   </v-container>
 </template>
 
 <script>
 import axios from "axios";
+import TimeAgo from 'vue2-timeago'
 
 export default {
-  name: "ArticleList",
+  components: {
+    TimeAgo,
+  },
+
   data() {
     return {
       articles: []
-    };
+    }
   },
+
   mounted() {
     this.fetchArticles();
   },
+
   methods: {
     async fetchArticles() {
-      try {
-        const response = await axios.get("/api/v1/articles");
-        // APIのレスポンス形式に合わせてデータをセット
-        this.articles = response.data;
-      } catch (error) {
-        console.error("記事一覧の取得エラー:", error);
-      }
+      await axios.get("/api/v1/articles").then(response => {
+        response.data.map((article) => {
+          this.articles.push(article);
+        });
+      });
     }
   }
-};
+}
 </script>
+
+<style lang="scss" scoped>
+.article-title {
+  a {
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  a:visited {
+    color: #777;
+  }
+}
+</style>
