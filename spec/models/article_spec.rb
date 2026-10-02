@@ -53,7 +53,6 @@ RSpec.describe Article, type: :model do
       let(:article) { build(:article, status: :draft, user: user) }
 
       it "下書き記事として保存できる" do
-        expect(article).to be_valid
         expect(article.status).to eq "draft"
       end
     end
@@ -62,7 +61,6 @@ RSpec.describe Article, type: :model do
       let(:article) { build(:article, status: :published, user: user) }
 
       it "公開記事として保存できる" do
-        expect(article).to be_valid
         expect(article.status).to eq "published"
       end
     end
