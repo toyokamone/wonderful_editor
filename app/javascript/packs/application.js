@@ -9,10 +9,11 @@ Vue.use(Vuetify)
 const vuetify = new Vuetify()
 
 document.addEventListener('DOMContentLoaded', () => {
-  new Vue({
+  const app = new Vue({
     router,
     store,
     vuetify,
     render: h => h(App)
-  }).$mount('#app')
+  }).$mount()
+  document.body.appendChild(app.$el)
 })
