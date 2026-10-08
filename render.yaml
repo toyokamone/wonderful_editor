@@ -18,6 +18,8 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 16.20.2
+      - key: NODE_OPTIONS
+        value: --openssl-legacy-provider
       - key: NODE_ENV
         value: production
       - key: RAILS_MASTER_KEY
