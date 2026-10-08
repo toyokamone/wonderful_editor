@@ -3,6 +3,6 @@
 set -o errexit
 
 bundle install
-rails assets:precompile
-rails assets:clean
-rails db:migrate
+SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
+bundle exec rails assets:clean
+bundle exec rails db:migrate
