@@ -2,9 +2,6 @@
 # exit on error
 set -o errexit
 
-# Node.js 17+ の OpenSSL 互換性エラー防止
-export NODE_OPTIONS=--openssl-legacy-provider
-
 # パッケージのインストール
 bundle install
 yarn install --check-files
