@@ -1,4 +1,5 @@
 require 'logger'
+require 'logger'
 # frozen_string_literal: true
 
 require "logger"
