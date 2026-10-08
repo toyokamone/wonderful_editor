@@ -16,6 +16,10 @@ services:
     buildCommand: ./bin/render-build.sh
     startCommand: bundle exec puma -C config/puma.rb
     envVars:
+      - key: NODE_VERSION
+        value: 16.20.2
+      - key: NODE_ENV
+        value: production
       - key: RAILS_MASTER_KEY
         sync: false
       - key: DATABASE_URL
