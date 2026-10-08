@@ -5,6 +5,9 @@
     "yarn": "1.x"
   },
   "private": true,
+  "resolutions": {
+    "node-sass": "npm:sass@^1.105.1"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.14.0",
     "@rails/actioncable": "^6.0.0",
