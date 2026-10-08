@@ -5,6 +5,9 @@ import Article from "../components/Article.vue";
 import Registration from "../components/Registration.vue";
 import Login from "../components/Login.vue";
 import EditArticle from "../components/EditArticle.vue";
+import DraftArticlesContainer from "../components/DraftArticlesContainer.vue";
+import EditDraftArticleContainer from "../components/EditDraftArticleContainer.vue";
+import MyPage from "../components/MyPage.vue";
 
 Vue.use(Router);
 
@@ -18,11 +21,11 @@ const router = new Router({
       component: ArticleList,
     },
     {
-      path: "/sign_up",
+      path: "/registration", // "/sign_up" から変更
       component: Registration,
     },
     {
-      path: "/sign_in",
+      path: "/login", // "/sign_in" から変更
       component: Login,
     },
     {
@@ -30,9 +33,26 @@ const router = new Router({
       component: EditArticle,
     },
     {
+      path: "/articles/drafts",
+      component: DraftArticlesContainer
+    },
+    {
+      path: "/articles/:id/edit",
+      component: EditArticle
+    },
+    {
+      path:
+      "/articles/drafts/:id/edit",
+      component: EditDraftArticleContainer
+    },
+    {
       path: "/articles/:id",
       component: Article,
       name: "article",
+    },
+    {
+      path: "/mypage",
+      component: MyPage
     },
   ],
 });
