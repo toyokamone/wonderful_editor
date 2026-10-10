@@ -9,6 +9,9 @@ module.exports = function (api) {
           modules: false
         }
       ]
+    ],
+    plugins: [
+      // エラー回避のため空のプラグインとして定義
     ]
   }
 }
